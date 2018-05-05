@@ -4,7 +4,6 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.misc import imread
 from skimage import color
 from skimage import io
 from scipy.ndimage import filters
