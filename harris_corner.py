@@ -5,10 +5,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from skimage import color
-from skimage import io
 from scipy.ndimage import filters
 from time import time
-import os
+from glob import glob
 
 
 def harris_corner(img, sigma, filter_size, k):
@@ -57,22 +56,26 @@ def harris_corner(img, sigma, filter_size, k):
 
 start = time()
 
-images = io.imread_collection(os.path.join('./project_data/a/', '*.png'))  # read all images from folder a
+images_names = glob("./project_data/a/*.png")  # read all images from folder a
+start_pos = 348, 191  # of pictures a
+# images_names = glob("./project_data/b/*.png")  # read all images from folder b
+# start_pos = 439, 272  # of pictures b
+
+images_names.sort()
 
 # parameters for the harris corner
 sigma = 2  # sd for Gaussian filter
-filter_size = 8  # filter size for calculating the derivative
+filter_size = 16  # filter size for calculating the derivative --> ideally: 16 for series b
 k = 0.06
 
 half_window_size = 8  # size of frame to extract around the position in the previous image
 
-for j, img in enumerate(images):
+for j in range(0, len(images_names)):
     print('Processing image Nr. ' + str(j))
+    img = plt.imread(images_names[j])
     if j == 0:  # add known starting positions
-        col_img_pos = 348
-        old_col_pos = 348
-        row_img_pos = 191
-        old_row_pos = 191
+        col_img_pos = old_col_pos = start_pos[0]
+        row_img_pos = old_row_pos = start_pos[1]
     else:
         image = np.copy(img)
         # extract only a certain frame of the image, based on the position in the previous image
