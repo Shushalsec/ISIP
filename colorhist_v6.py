@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from glob import glob
 from skimage.feature import match_template
 
+
 def imgsimplify(img, c, window):
     """
     Returns the part of the image that might be of interest
@@ -34,14 +35,14 @@ if __name__== '__main__':
     files_names = glob("./project_data/a/*.png")
     c_in = 348, 191
     output = open('output_a.txt', 'w')
-    training_pictures = glob("./project_data/a_train/*.png")
+    training_pictures = glob("./project_data/a_train/ncc/*.png")
     c_train = [(308, 183), (433, 116)]
     #_______________________________________________________________
     # Activate to work only with set B
     # files_names = glob("./project_data/b/*.png")
     # c_in = 439, 272
     # output = open('output_b.txt', 'w')
-    # training_pictures = glob("./project_data/b_train/*.png")
+    # training_pictures = glob("./project_data/b_train/ncc/*.png")
     # c_train = [(433, 270), (426, 263)]
     #_______________________________________________________________
 
