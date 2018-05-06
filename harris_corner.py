@@ -1,6 +1,6 @@
-# GROUPWORK - HARRIS CORNER
+#!/usr/bin/env python3
 
-# MADLEINA CADUFF
+# GROUPWORK - HARRIS CORNER
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -56,19 +56,19 @@ def harris_corner(img, sigma, filter_size, k):
 
 start = time()
 
-images_names = glob("./project_data/a/*.png")  # read all images from folder a
-start_pos = 348, 191  # of pictures a
-# images_names = glob("./project_data/b/*.png")  # read all images from folder b
-# start_pos = 439, 272  # of pictures b
+#images_names = glob("./project_data/a/*.png")  # read all images from folder a
+#start_pos = 348, 191  # of pictures a
+images_names = glob("./project_data/b/*.png")  # read all images from folder b
+start_pos = 439, 272  # of pictures b
 
 images_names.sort()
 
 # parameters for the harris corner
 sigma = 2  # sd for Gaussian filter
-filter_size = 16  # filter size for calculating the derivative --> ideally: 16 for series b
+filter_size = 20  # filter size for calculating the derivative
 k = 0.06
 
-half_window_size = 8  # size of frame to extract around the position in the previous image
+half_window_size = 15  # size of frame to extract around the position in the previous image
 
 for j in range(0, len(images_names)):
     print('Processing image Nr. ' + str(j))
