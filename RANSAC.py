@@ -164,7 +164,7 @@ def RANSAC_it(image, sigma):
     plt.show()
 
 image_names = glob("./project_data/b/*.png")
-
+image_names.sort()
 
 for i in image_names:
 
