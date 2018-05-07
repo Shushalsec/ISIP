@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 # INTRODUCTION TO SIGNAL AND IMAGE PROCESSING 2018 - GROUP PROJECT
-
 # TRACKING SURGICAL INSTRUMENTS USING NCC
-
 # Shushan Toneyan, Madleina Caduff, Judith Bergada Pijuan
 
 from glob import glob
