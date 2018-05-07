@@ -6,7 +6,6 @@
 
 # Shushan Toneyan, Madleina Caduff, Judith Bergada Pijuan
 
-import os
 from glob import glob
 
 import matplotlib.pyplot as plt
