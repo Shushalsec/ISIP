@@ -16,6 +16,7 @@ from skimage import feature
 import skimage
 from math import sqrt
 from scipy.misc import imread
+from glob import glob
 from os.path import isfile, join
 
 
@@ -162,13 +163,11 @@ def RANSAC_it(image, sigma):
     
     plt.show()
 
-
-DATA_DIR = 'C:\\Users\\Shushan\\Desktop\\Mission Masters\\ISIP\\Group Project\\project_data\\project_data\\b'
-image_names = [f for f in os.listdir(DATA_DIR) if isfile(join(DATA_DIR, f))]
+image_names = glob("./project_data/b/*.png")
 
 
-for i in range(len(image_names)):
+for i in image_names:
 
     plt.clf()
-    RANSAC_it(imread(os.path.join(DATA_DIR, os.listdir(DATA_DIR)[i]))[:,:,0], 1.5)
+    RANSAC_it(imread(i)[:, :, 0], 1.5)
     plt.pause(0.2)
