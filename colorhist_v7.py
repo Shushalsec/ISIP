@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
-import os
+# INTRODUCTION TO SIGNAL AND IMAGE PROCESSING 2018 - GROUP PROJECT
+
+# TRACKING SURGICAL INSTRUMENTS USING NCC
+
+# Shushan Toneyan, Madleina Caduff, Judith Bergada Pijuan
+
 import numpy as np
 import matplotlib.pyplot as plt
 from glob import glob
@@ -10,42 +15,35 @@ from skimage.color import rgb2gray
 
 def imgsimplify(img, c, window):
     """
-    Returns the part of the image that might be of interest
-    Parameters
-    ----------
-    img : array_like
-        Image that we want to cut or simplify
-    c : tuple
-        Center of the new image
-    window : integer
-        Size of the desired final image. It must be an odd number.
-    Returns
-    -------
-    simple_img : array_like
-        Image of size window x window that results from cutting the initial img.
+    Returns the part of the image
+    :param img: array_like; image that we want to cut or simplify
+    :param c: tuple; center of the new image
+    :param window: odd integer; size of the desired final image.
+    :return: array_like; image of size window x window that results from cutting the initial img.
     """
     c_x = c[0]
     c_y = c[1]
     window_half = (window - 1) // 2
-    simple_img = img[c_y-window_half:c_y+window_half+1, c_x-window_half:c_x+window_half+1]
+    simple_img = img[c_y - window_half: c_y + window_half + 1, c_x - window_half: c_x + window_half + 1]
     return simple_img
 
-if __name__== '__main__':
-    #_______________________________________________________________
+
+if __name__ == '__main__':
+    # _______________________________________________________________
     # Activate to work only with set A
     # files_names = glob("./project_data/a/*.png")
     # c_in = 348, 191
     # output = open('output_a.txt', 'w')
     # training_pictures = glob("./project_data/a_train/ncc/*.png")
     # c_train = []
-    #_______________________________________________________________
+    # _______________________________________________________________
     # Activate to work only with set B
     files_names = glob("./project_data/b/*.png")
     c_in = 439, 272
     output = open('output_b.txt', 'w')
     training_pictures = glob("./project_data/b_train/ncc/*.png")
     c_train = [(433, 270), (426, 263)]
-    #_______________________________________________________________
+    # _______________________________________________________________
 
     files_names.sort()
     training_pictures.sort()
@@ -56,14 +54,14 @@ if __name__== '__main__':
     threshold = 0.98
 
     # Initial conditions
-    img = rgb2gray(plt.imread(files_names[0]))
+    img = rgb2gray(plt.imread(files_names[0]))  # read first image with known starting positions
     simple_img = imgsimplify(img, c_in, window_in)
 
     # Training information
     train_info = np.zeros((len(training_pictures), window_in, window_in))
     for j in range(len(training_pictures)):
         img_train = rgb2gray(plt.imread(training_pictures[j]))
-        train_info[j,:,:] = imgsimplify(img_train, c_train[j], window_in)
+        train_info[j, :, :] = imgsimplify(img_train, c_train[j], window_in)
 
     # Open a .txt file where the coordinates of the points will be writen
     output.write("  image_name\t    x-location\t    y-location\n")
@@ -71,9 +69,10 @@ if __name__== '__main__':
     output.flush()
 
     # Find the desired pixel in all frames
-    for i in range(1,len(files_names)):
+    for i in range(1, len(files_names)):
         # Take next image of the list for comparison and its "interesting" regions
-        img_next = rgb2gray(plt.imread(files_names[i]))
+        img_next_col = plt.imread(files_names[i])
+        img_next = rgb2gray(img_next_col)  # convert to grayscale
         simple_imgnext = imgsimplify(img_next, c_in, window_next)
 
         # Compute NCC and take the pixel with the highest value
@@ -97,7 +96,7 @@ if __name__== '__main__':
             for training in train_info:
                 NCC_training_onedim = match_template(simple_imgnext, training, pad_input=True, mode="edge")
                 NCC_train_max = np.max(NCC_training_onedim)
-                if  NCC_train_max > NCC_max:
+                if NCC_train_max > NCC_max:
                     NCC_max = NCC_train_max
                     NCC_onedim = NCC_training_onedim
 
@@ -114,12 +113,12 @@ if __name__== '__main__':
         output.write("{}\t\t{}\t\t{}\n".format(files_names[i], c_in[0], c_in[1]))
         output.flush()
 
-        #Visual check of the obtained results
+        # Visual check of the obtained results
         plt.ion()
-        plt.clf()
-        plt.imshow(img, cmap = plt.get_cmap('gray'))
-        plt.scatter(*c_in, c="r", marker="o")
+        plt.clf()  # clear figure
+        plt.axis('off')
+        plt.imshow(img_next_col)
+        plt.scatter(*c_in, c="r", marker="o")  # add red dot
         plt.show()
-        plt.pause(0.2)
 
     output.close()
