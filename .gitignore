@@ -3,3 +3,6 @@
 
 output_a.txt
 output_b.txt
+
+# macOS
+.DS_Store
