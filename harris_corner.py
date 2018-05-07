@@ -68,7 +68,7 @@ sigma = 1  # sd for Gaussian filter
 filter_size = 10  # filter size for calculating the derivative
 k = 0.06
 
-half_window_size = 20  # size of frame to extract around the position in the previous image
+half_window_size = 20   # size of frame to extract around the position in the previous image
 
 positions = []
 
@@ -84,8 +84,6 @@ for j in range(len(images_names)):
                 positions[j-1][0] - half_window_size: positions[j-1][0] + half_window_size + 1]
 
         frame = color.rgb2gray(frame)  # convert to greyscale
-        # plt.imshow(frame)
-        # plt.show()
         # get corner position in the frame
         x_frame_pos, y_frame_pos = harris_corner(frame, sigma, filter_size, k)
         # get corner position in full image
