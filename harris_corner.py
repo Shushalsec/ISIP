@@ -22,8 +22,8 @@ def harris_corner(img, sigma, filter_size, k):
     imCols, imRows = np.shape(img)
     half_filt = filter_size//2
     best_r = 0
-    best_row = 0
-    best_col = 0
+    best_x = 0
+    best_y = 0
 
     # apply a first derivative Gaussian filter to both axes
     dx = filters.gaussian_filter1d(img, axis=0, sigma=sigma, order=1)
@@ -34,11 +34,11 @@ def harris_corner(img, sigma, filter_size, k):
     Iy2 = dy**2
 
     # Loop through image
-    for row in range(half_filt, imCols - half_filt):
-        for col in range(half_filt, imRows - half_filt):
+    for x in range(half_filt, imCols - half_filt):
+        for y in range(half_filt, imRows - half_filt):
             # Compute sums of products of derivatives at each pixel
-            Sx2 = Ix2[row - half_filt: row + half_filt + 1, col - half_filt: col + half_filt + 1].sum()
-            Sy2 = Iy2[row - half_filt: row + half_filt + 1, col - half_filt: col + half_filt + 1].sum()
+            Sx2 = Ix2[y - half_filt: y + half_filt + 1, x - half_filt: x + half_filt + 1].sum()
+            Sy2 = Iy2[y - half_filt: y + half_filt + 1, x - half_filt: x + half_filt + 1].sum()
 
             # Find determinant and trace, use to get corner response
             det = Sx2 * Sy2
@@ -48,52 +48,53 @@ def harris_corner(img, sigma, filter_size, k):
             # Only keep the best-scoring corner response
             if r > best_r:
                 best_r = r
-                best_row = row
-                best_col = col
+                best_x = x
+                best_y = y
 
-    return best_row, best_col
+    return best_x, best_y
 
 
 start = time()
 
-#images_names = glob("./project_data/a/*.png")  # read all images from folder a
-#start_pos = 348, 191  # of pictures a
-images_names = glob("./project_data/b/*.png")  # read all images from folder b
-start_pos = 439, 272  # of pictures b
+images_names = glob("./project_data/a/*.png")  # read all images from folder a
+start_pos = 348, 191  # of pictures a
+#images_names = glob("./project_data/b/*.png")  # read all images from folder b
+#start_pos = 439, 272  # of pictures b
 
 images_names.sort()
 
 # parameters for the harris corner
-sigma = 2  # sd for Gaussian filter
-filter_size = 20  # filter size for calculating the derivative
+sigma = 1  # sd for Gaussian filter
+filter_size = 10  # filter size for calculating the derivative
 k = 0.06
 
-half_window_size = 15  # size of frame to extract around the position in the previous image
+half_window_size = 20  # size of frame to extract around the position in the previous image
 
-for j in range(0, len(images_names)):
+positions = []
+
+for j in range(len(images_names)):
     print('Processing image Nr. ' + str(j))
     img = plt.imread(images_names[j])
     if j == 0:  # add known starting positions
-        col_img_pos = old_col_pos = start_pos[0]
-        row_img_pos = old_row_pos = start_pos[1]
+        x_img_pos, y_img_pos = start_pos
     else:
         image = np.copy(img)
         # extract only a certain frame of the image, based on the position in the previous image
-        frame = image[old_col_pos - half_window_size: old_col_pos + half_window_size + 1,
-                old_row_pos - half_window_size: old_row_pos + half_window_size + 1]
+        frame = image[positions[j-1][1] - half_window_size: positions[j-1][1] + half_window_size + 1,
+                positions[j-1][0] - half_window_size: positions[j-1][0] + half_window_size + 1]
 
         frame = color.rgb2gray(frame)  # convert to greyscale
+        # plt.imshow(frame)
+        # plt.show()
         # get corner position in the frame
-        row_frame_pos, col_frame_pos = harris_corner(frame, sigma, filter_size, k)
+        x_frame_pos, y_frame_pos = harris_corner(frame, sigma, filter_size, k)
         # get corner position in full image
-        row_img_pos = row_frame_pos + old_row_pos - half_window_size
-        col_img_pos = col_frame_pos + old_col_pos - half_window_size
-        # update "old" positions
-        old_row_pos = row_img_pos
-        old_col_pos = col_img_pos
+        x_img_pos = positions[j-1][0] - half_window_size + x_frame_pos + filter_size//2
+        y_img_pos = positions[j-1][1] - half_window_size + y_frame_pos + filter_size//2
 
-    print('row_pos: ' + str(row_img_pos), '\ncol_pos: ' + str(col_img_pos))
-    plt.scatter(col_img_pos, row_img_pos, c='r', marker='o')
+    positions.append([x_img_pos, y_img_pos])
+    print('x_pos: ' + str(x_img_pos), '\ny_pos: ' + str(y_img_pos))
+    plt.scatter(x_img_pos, y_img_pos, c='r', marker='o')
     plt.imshow(img)
     plt.axis('off')
     plt.show()
