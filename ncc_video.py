@@ -6,9 +6,13 @@
 
 # Shushan Toneyan, Madleina Caduff, Judith Bergadà Pijuan
 
-from glob import glob
+'''
+In lines 42-43, it can be specified whether a text file should be written and/or a
+video of the output should be produced (which will be saved in your working directory).
+'''
 
-import cv2
+from glob import glob
+import cv2  # we use openCV only for making the final video!
 import matplotlib.pyplot as plt
 import numpy as np
 from skimage.color import rgb2gray
@@ -25,25 +29,32 @@ def imgsimplify(img, c, window):
     """
     c_x, c_y = c[0], c[1]
     window_half = (window - 1) // 2
-    simple_img = img[c_y - window_half:c_y + window_half + 1,
-                     c_x - window_half:c_x + window_half + 1]
+    simple_img = img[c_y - window_half: c_y + window_half + 1,
+                     c_x - window_half: c_x + window_half + 1]
     return simple_img
 
 
 if __name__ == '__main__':
-    # _______________________________________________________________
-    # Activate to work only with set A
-    files_names = glob("./project_data/a/*.png")
-    c_in = (348, 191)
-    output = open('output_a.txt', 'w')
-    video_name = "video_a.mp4"
-    # _______________________________________________________________
-    # Activate to work only with set B
-    # files_names = glob("./project_data/b/*.png")
-    # c_in = (439, 272)
-    # output = open('output_b.txt', 'w')
-    # video_name = "video_b.mp4"
-    # _______________________________________________________________
+
+    # Define output:
+    whichSet = 'A'
+    makeVideo = True
+    writeTextFile = True
+
+    if whichSet == 'A':
+        files_names = glob("./project_data/a/*.png")
+        c_in = (348, 191)
+        if writeTextFile:
+            output = open('output_a.txt', 'w')
+        video_name = "video_a.mp4"
+    if whichSet == 'B':
+        files_names = glob("./project_data/b/*.png")
+        c_in = (439, 272)
+        if writeTextFile:
+            output = open('output_b.txt', 'w')
+        video_name = "video_b.mp4"
+    else:
+        print('Set name not defined, try again.')
 
     files_names.sort()
 
@@ -58,14 +69,15 @@ if __name__ == '__main__':
     previous_imgs[0, :, :] = imgsimplify(img, c_in, window_template)
 
     # Open a .txt file where the coordinates of the points will be writen
-    output.write("  image_name\t    x-location\t    y-location\n")
-    output.write("{}\t\t{}\t\t{}\n".format(files_names[0], c_in[0], c_in[1]))
-    output.flush()
+    if writeTextFile:
+        output.write("  image_name\t    x-location\t    y-location\n")
+        output.write("{}\t\t{}\t\t{}\n".format(files_names[0], c_in[0], c_in[1]))
+        output.flush()
 
     # Open the video to save the results
-    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    video_writer = cv2.VideoWriter(video_name, fourcc, 5,
-                                   (img.shape[1], img.shape[0]))
+    if makeVideo:
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        video_writer = cv2.VideoWriter(video_name, fourcc, 5, (img.shape[1], img.shape[0]))
 
     # Find the desired pixel in all frames
     for i in range(1, len(files_names)):
@@ -76,7 +88,7 @@ if __name__ == '__main__':
 
         # Compute NCC considering the previous frames as templates
         NCC_max = 0
-        for template in previous_imgs[0:min(i, len(previous_imgs))]:
+        for template in previous_imgs[0: min(i, len(previous_imgs))]:
             NCC_obtained = match_template(
                 simple_imgnext, template, pad_input=True, mode="edge")
             NCC_obtained_max = np.max(NCC_obtained)
@@ -97,22 +109,18 @@ if __name__ == '__main__':
                                                   window_template)
 
         # Save new frame in the video
-        img_to_plot = (img_to_plot * 255).astype(np.uint8)
-        cv2.circle(img_to_plot, c_in, 0, (255, 0, 0), 9)
-        video_writer.write(img_to_plot[:, :, ::-1])
+        if makeVideo:
+            img_to_plot = (img_to_plot * 255).astype(np.uint8)
+            cv2.circle(img_to_plot, c_in, 0, (255, 0, 0), 9)
+            video_writer.write(img_to_plot[:, :, ::-1])
 
         # Save new coordinates in the .txt file
-        output.write("{}\t\t{}\t\t{}\n".format(files_names[i], c_in[0],
-                                               c_in[1]))
-        output.flush()
+        if writeTextFile:
+            output.write("{}\t\t{}\t\t{}\n".format(files_names[i], c_in[0],
+                                                   c_in[1]))
+            output.flush()
 
-        # Visual check of the obtained results
-        # plt.ion()
-        # plt.clf()
-        # plt.imshow(img_to_plot)
-        # plt.scatter(*c_in, c="r", marker="o")
-        # plt.show()
-        # plt.pause(0.2)
-
-    video_writer.release()
-    output.close()
+    if writeTextFile:
+        output.close()
+    if makeVideo:
+        video_writer.release()
