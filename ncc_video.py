@@ -8,6 +8,7 @@
 
 from glob import glob
 
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from skimage.color import rgb2gray
@@ -32,20 +33,22 @@ def imgsimplify(img, c, window):
 if __name__ == '__main__':
     # _______________________________________________________________
     # Activate to work only with set A
-    # files_names = glob("./project_data/a/*.png")
-    # c_in = (348, 191)
-    # output = open('output_a.txt', 'w')
+    files_names = glob("./project_data/a/*.png")
+    c_in = (348, 191)
+    output = open('output_a.txt', 'w')
+    video_name = "video_a.mp4"
     # _______________________________________________________________
     # Activate to work only with set B
-    files_names = glob("./project_data/b/*.png")
-    c_in = (439, 272)
-    output = open('output_b.txt', 'w')
+    # files_names = glob("./project_data/b/*.png")
+    # c_in = (439, 272)
+    # output = open('output_b.txt', 'w')
+    # video_name = "video_b.mp4"
     # _______________________________________________________________
 
     files_names.sort()
 
     # Parameters
-    num_imgs = 10
+    num_imgs = 15
     window_next = 35
     window_template = window_next // 2
 
@@ -58,6 +61,11 @@ if __name__ == '__main__':
     output.write("  image_name\t    x-location\t    y-location\n")
     output.write("{}\t\t{}\t\t{}\n".format(files_names[0], c_in[0], c_in[1]))
     output.flush()
+
+    # Open the video to save the results
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    video_writer = cv2.VideoWriter(video_name, fourcc, 5,
+                                   (img.shape[1], img.shape[0]))
 
     # Find the desired pixel in all frames
     for i in range(1, len(files_names)):
@@ -88,17 +96,23 @@ if __name__ == '__main__':
         previous_imgs[i % num_imgs] = imgsimplify(img_next, c_in,
                                                   window_template)
 
+        # Save new frame in the video
+        img_to_plot = (img_to_plot * 255).astype(np.uint8)
+        cv2.circle(img_to_plot, c_in, 0, (255, 0, 0), 9)
+        video_writer.write(img_to_plot[:, :, ::-1])
+
         # Save new coordinates in the .txt file
         output.write("{}\t\t{}\t\t{}\n".format(files_names[i], c_in[0],
                                                c_in[1]))
         output.flush()
 
         # Visual check of the obtained results
-        plt.ion()
-        plt.clf()
-        plt.imshow(img_to_plot)
-        plt.scatter(*c_in, c="r", marker="o")
-        plt.show()
-        plt.pause(0.2)
+        # plt.ion()
+        # plt.clf()
+        # plt.imshow(img_to_plot)
+        # plt.scatter(*c_in, c="r", marker="o")
+        # plt.show()
+        # plt.pause(0.2)
 
+    video_writer.release()
     output.close()

@@ -3,6 +3,7 @@
 
 output_a.txt
 output_b.txt
+*.mp4
 
 # macOS
 .DS_Store
