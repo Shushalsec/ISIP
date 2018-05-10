@@ -5,13 +5,13 @@
 # TRACKING SURGICAL INSTRUMENTS USING NCC
 
 # Shushan Toneyan, Madleina Caduff, Judith Bergadà Pijuan
-
 '''
 In lines 42-43, it can be specified whether a text file should be written and/or a
 video of the output should be produced (which will be saved in your working directory).
 '''
 
 from glob import glob
+
 import cv2  # we use openCV only for making the final video!
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,8 +29,8 @@ def imgsimplify(img, c, window):
     """
     c_x, c_y = c[0], c[1]
     window_half = (window - 1) // 2
-    simple_img = img[c_y - window_half: c_y + window_half + 1,
-                     c_x - window_half: c_x + window_half + 1]
+    simple_img = img[c_y - window_half:c_y + window_half + 1,
+                     c_x - window_half:c_x + window_half + 1]
     return simple_img
 
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         if writeTextFile:
             output = open('output_a.txt', 'w')
         video_name = "video_a.mp4"
-    if whichSet == 'B':
+    elif whichSet == 'B':
         files_names = glob("./project_data/b/*.png")
         c_in = (439, 272)
         if writeTextFile:
@@ -71,13 +71,15 @@ if __name__ == '__main__':
     # Open a .txt file where the coordinates of the points will be writen
     if writeTextFile:
         output.write("  image_name\t    x-location\t    y-location\n")
-        output.write("{}\t\t{}\t\t{}\n".format(files_names[0], c_in[0], c_in[1]))
+        output.write("{}\t\t{}\t\t{}\n".format(files_names[0], c_in[0],
+                                               c_in[1]))
         output.flush()
 
     # Open the video to save the results
     if makeVideo:
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        video_writer = cv2.VideoWriter(video_name, fourcc, 5, (img.shape[1], img.shape[0]))
+        video_writer = cv2.VideoWriter(video_name, fourcc, 5,
+                                       (img.shape[1], img.shape[0]))
 
     # Find the desired pixel in all frames
     for i in range(1, len(files_names)):
@@ -88,7 +90,7 @@ if __name__ == '__main__':
 
         # Compute NCC considering the previous frames as templates
         NCC_max = 0
-        for template in previous_imgs[0: min(i, len(previous_imgs))]:
+        for template in previous_imgs[0:min(i, len(previous_imgs))]:
             NCC_obtained = match_template(
                 simple_imgnext, template, pad_input=True, mode="edge")
             NCC_obtained_max = np.max(NCC_obtained)
