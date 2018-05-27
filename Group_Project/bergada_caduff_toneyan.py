@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     # Define output:
     whichSet = ['A', 'B']
-    makeVideo = True  # Creates a video to visually see the performance of the tracking.
+    makeVideo = False  # Creates a video to visually see the performance of the tracking.
     writeTextFile = True  # Creates a .txt file with the coordinates of the tracked point.
 
     for new_set in whichSet:
